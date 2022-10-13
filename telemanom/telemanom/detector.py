@@ -4,11 +4,11 @@ import pandas as pd
 from datetime import datetime as dt
 import logging
 
-from telemanom.helpers import Config
-from telemanom.errors import Errors
-import telemanom.helpers as helpers
-from telemanom.channel import Channel
-from telemanom.modeling import Model
+from helpers import Config
+from errors import Errors
+import helpers as helpers
+from channel import Channel
+from modeling import Model
 
 logger = helpers.setup_logging()
 
@@ -39,7 +39,7 @@ class Detector:
             id (str): datetime id for tracking different runs
             result_path (str): see Args
         """
-
+        print("Detector init"*10)
         self.labels_path = labels_path
         self.results = []
         self.result_df = None
