@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import datetime as dt
 import logging
 
+import multiprocessing as mp
+
 from helpers import Config
 from errors import Errors
 import helpers as helpers
@@ -11,6 +13,40 @@ from channel import Channel
 from modeling import Model
 
 logger = helpers.setup_logging()
+class Parallel_Params:
+    def __init__(self, config, i, chan_id, rid):
+        self.config = config
+        self.i = i
+        self.chan_id = chan_id
+        self.id =rid
+
+        
+def run_job(cfg, i, cid, rid):
+    pp = Parallel_Params(cfg, i, cid, rid)
+    print('Staring parallel job for channel {}'.format(pp.chan_id))
+    logger.info('Stream # {}: {}'.format(pp.i, pp.chan_id))
+    channel = Channel(pp.config, pp.chan_id)
+    channel.load_data()
+    if pp.config.predict:
+        model = Model(pp.config, pp.id, channel)
+        channel = model.batch_predict(channel)
+    else:
+        channel.y_hat = np.load(os.path.join('data', pp.id, 'y_hat',
+                                             '{}.npy'
+                                             .format(channel.id)))
+
+    errors = Errors(channel, pp.config, pp.id)
+    errors.process_batches(channel)
+    result_row = {
+            'run_id': pp.id,
+            'chan_id': pp.chan_id,
+            'num_train_values': len(channel.X_train),
+            'num_test_values': len(channel.X_test),
+            'n_predicted_anoms': len(errors.E_seq),
+            'normalized_pred_error': errors.normalized,
+            'anom_scores': errors.anom_scores
+        }
+    return {'i':i , 'rr':results_row, 'e':errors}
 
 class Detector:
     def __init__(self, labels_path=None, result_path='results/',
@@ -188,7 +224,60 @@ class Detector:
             logger.info('Total number of values evaluated: {}'
                         .format(self.result_df['num_test_values'].sum()))
 
+    def run_parallel(self):
+        cfg_list =\
+            [[self.config,i,row.chan_id,self.id]\
+             for i, row in self.chan_df.iterrows()]
+        for cfg in cfg_list:
+            print(cfg)
+        print("Runing Parallel")
+        print("*"*200)
+        pool = mp.Pool(mp.cpu_count())
+        # Map pool of workers to process
+        results_lst = pool.starmap(func=run_job, iterable=cfg_list)
 
+        # Wait until workers complete execution
+        pool.close()
+        
+        for i, row in self.chan_df.iterrows():
+            res = list(filter(lambda results_lst: results_lst['i'] == i, results_lst))
+            result_row = res['rr']
+            errors = res['e']
+            
+            if self.labels_path:
+                result_row = {**result_row,
+                              **self.evaluate_sequences(errors, row)}
+                result_row['spacecraft'] = row['spacecraft']
+                result_row['anomaly_sequences'] = row['anomaly_sequences']
+                result_row['class'] = row['class']
+                self.results.append(result_row)
+
+                logger.info('Total true positives: {}'
+                            .format(self.result_tracker['true_positives']))
+                logger.info('Total false positives: {}'
+                            .format(self.result_tracker['false_positives']))
+                logger.info('Total false negatives: {}\n'
+                            .format(self.result_tracker['false_negatives']))
+
+            else:
+                result_row['anomaly_sequences'] = errors.E_seq
+                self.results.append(result_row)
+
+                logger.info('{} anomalies found'
+                            .format(result_row['n_predicted_anoms']))
+                logger.info('anomaly sequences start/end indices: {}'
+                            .format(result_row['anomaly_sequences']))
+                logger.info('number of test values: {}'
+                            .format(result_row['num_test_values']))
+                logger.info('anomaly scores: {}\n'
+                            .format(result_row['anom_scores']))
+
+            self.result_df = pd.DataFrame(self.results)
+            self.result_df.to_csv(
+                os.path.join(self.result_path, '{}.csv'.format(self.id)),
+                index=False)
+
+        self.log_final_stats()
     def run(self):
         """
         Initiate processing for all channels.

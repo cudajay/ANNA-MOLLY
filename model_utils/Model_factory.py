@@ -24,4 +24,22 @@ class Model_Factory():
             model.add(Dense(
                 config.n_predictions))
             model.add(Activation('linear'))
+    
+        if config.type  == 'CNN-LSTM':
+            model = Sequential()
+
+            model.add(LSTM(
+                config.layers[0],
+                input_shape=(None, 55),
+                return_sequences=True))
+            model.add(Dropout(config.dropout))
+
+            model.add(LSTM(
+                config.layers[1],
+                return_sequences=False))
+            model.add(Dropout(config.dropout))
+
+            model.add(Dense(
+                config.n_predictions))
+            model.add(Activation('linear'))
         return model

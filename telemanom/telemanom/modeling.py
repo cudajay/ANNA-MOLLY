@@ -7,7 +7,7 @@ import os
 import logging
 
 # suppress tensorflow CPU speedup warnings
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 logger = logging.getLogger('telemanom')
 
 

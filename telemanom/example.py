@@ -12,4 +12,4 @@ print(sys.builtin_module_names)
 if __name__ == '__main__':
     print("woof"*20)
     detector = Detector(labels_path=args.labels_path)
-    detector.run()
+    detector.run_parallel()
