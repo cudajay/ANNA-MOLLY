@@ -27,7 +27,7 @@ class Model_Factory():
                 config.n_predictions))
             model.add(Activation('linear'))
     
-        if config.type  == 'CNN-LSTM':
+        elif config.type  == 'CNN-LSTM':
             model = Sequential()
             model.add(Conv1D(filters=64,
                              kernel_size=3,
@@ -36,14 +36,21 @@ class Model_Factory():
             model.add(Conv1D(filters=64,
                              kernel_size=3,
                              activation='relu'))
-            model.add(MaxPooling1D(pool_size=2))
-            model.add(Flatten())
-            model.add(RepeatVector(n_outputs))
-            model.add(LSTM(200, activation='relu',
-                           return_sequences=True))
             model.add(Dropout(config.dropout))
+            model.add(Dense(
+                25))
+            model.add(LSTM(
+                cfg.layers[1],
+                return_sequences=False))
+            model.add(Dropout(cfg.dropout))
 
+            model.add(Dense(
+                cfg.n_predictions))
+            model.add(Activation('linear'))
             model.add(Dense(
                 config.n_predictions))
             model.add(Activation('linear'))
+        else:
+            print("No model configuration found "*20)
+            assert(False)
         return model

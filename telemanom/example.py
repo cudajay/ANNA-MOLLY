@@ -7,9 +7,6 @@ import sys
 parser = argparse.ArgumentParser(description='Parse path to anomaly labels if provided.')
 parser.add_argument('-l', '--labels_path', default=None, required=False)
 args = parser.parse_args()
-print(sys.builtin_module_names)
-
 if __name__ == '__main__':
-    print("woof"*20)
     detector = Detector(labels_path=args.labels_path)
     detector.run_parallel()

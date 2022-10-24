@@ -2,17 +2,17 @@ from keras.models import Sequential, load_model
 from keras.callbacks import History, EarlyStopping, Callback
 from keras.layers.recurrent import LSTM
 from keras.layers.core import Dense, Activation, Dropout
+
 import numpy as np
 import os
 import logging
-
 # suppress tensorflow CPU speedup warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 logger = logging.getLogger('telemanom')
 
 
 class Model:
-    def __init__(self, config, run_id, channel):
+    def __init__(self, config, run_id, channel, model_factory):
         """
         Loads/trains RNN and predicts future telemetry values for a channel.
 
@@ -35,6 +35,7 @@ class Model:
         self.chan_id = channel.id
         self.run_id = run_id
         self.y_hat = np.array([])
+        self.model_factory = model_factory
         self.model = None
 
         if not self.config.train:
@@ -62,35 +63,18 @@ class Model:
 
     def train_new(self, channel):
         """
-        Train LSTM model according to specifications in config.yaml.
+        Train desired model according to specifications in config.yaml.
 
         Args:
             channel (obj): Channel class object containing train/test data
                 for X,y for a single channel
         """
-
+        self.model = self.model_factory.create_model(self.config, channel.X_train.shape[-1])
         cbs = [History(), EarlyStopping(monitor='val_loss',
                                         patience=self.config.patience,
                                         min_delta=self.config.min_delta,
                                         verbose=0)]
-
-        self.model = Sequential()
-
-        self.model.add(LSTM(
-            self.config.layers[0],
-            input_shape=(None, channel.X_train.shape[2]),
-            return_sequences=True))
-        self.model.add(Dropout(self.config.dropout))
-
-        self.model.add(LSTM(
-            self.config.layers[1],
-            return_sequences=False))
-        self.model.add(Dropout(self.config.dropout))
-
-        self.model.add(Dense(
-            self.config.n_predictions))
-        self.model.add(Activation('linear'))
-
+        print(channel.X_train.shape[-1])
         self.model.compile(loss=self.config.loss_metric,
                            optimizer=self.config.optimizer)
 

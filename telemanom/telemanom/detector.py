@@ -11,7 +11,8 @@ from errors import Errors
 import helpers as helpers
 from channel import Channel
 from modeling import Model
-
+from model_utils.Model_factory import Model_Factory
+mf = Model_Factory()
 logger = helpers.setup_logging()
 class Parallel_Params:
     def __init__(self, config, i, chan_id, rid):
@@ -28,7 +29,7 @@ def run_job(cfg, i, cid, rid):
     channel = Channel(pp.config, pp.chan_id)
     channel.load_data()
     if pp.config.predict:
-        model = Model(pp.config, pp.id, channel)
+        model = Model(pp.config, pp.id, channel, mf)
         channel = model.batch_predict(channel)
     else:
         channel.y_hat = np.load(os.path.join('data', pp.id, 'y_hat',
