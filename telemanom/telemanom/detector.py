@@ -12,6 +12,8 @@ import helpers as helpers
 from channel import Channel
 from modeling import Model
 from model_utils.Model_factory import Model_Factory
+import json
+
 mf = Model_Factory()
 logger = helpers.setup_logging()
 class Parallel_Params:
@@ -90,11 +92,19 @@ class Detector:
 
         self.config = Config(config_path)
         self.y_hat = None
-
+        type_id = -999
+        mr = os.path.join("..", 'model_runs.json')
+        with open(mr, 'r') as openfile:
+            json_object = json.load(openfile)
+            type_id = json_object[self.config.type] + 1
+            json_object[self.config.type] = type_id
+        with open(mr, 'w') as openfile:
+            openfile.write(json.dumps(json_object))
+        assert(type_id >0)
         if not self.config.predict and self.config.use_id:
             self.id = self.config.use_id
         else:
-            self.id = dt.now().strftime('%Y-%m-%d_%H.%M.%S')
+            self.id = "{}-".format(type_id) + dt.now().strftime('%Y-%m-%d_%H.%M.%S')
 
         helpers.make_dirs(self.id)
 

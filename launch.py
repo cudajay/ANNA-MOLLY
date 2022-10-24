@@ -1,12 +1,13 @@
 import sys
 import os
-
+import json
 import argparse
 from multiprocessing import Process
 sys.path.append("telemanom/")
 sys.path.append("model_utils/")
-print(sys.path)
-#from telemanom import *
+
+
+   
 
 #parser = argparse.ArgumentParser(description='Experimenting Interface')
 #parser.add_argument('-b', '--base_type', default="LSTM", required=False)

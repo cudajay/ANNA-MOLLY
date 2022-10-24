@@ -9,7 +9,7 @@ class Model_Factory():
         pass
     def create_model(self, config, n_features):
         model = None
-        if config.type  == 'LSTM':
+        if config.type  == 'lstm':
             model = Sequential()
 
             model.add(LSTM(
@@ -27,7 +27,7 @@ class Model_Factory():
                 config.n_predictions))
             model.add(Activation('linear'))
     
-        elif config.type  == 'CNN-LSTM':
+        elif config.type  == 'cnn':
             model = Sequential()
             model.add(Conv1D(filters=64,
                              kernel_size=3,
