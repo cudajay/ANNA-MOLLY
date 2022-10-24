@@ -104,7 +104,7 @@ class Detector:
         if not self.config.predict and self.config.use_id:
             self.id = self.config.use_id
         else:
-            self.id = "{}-".format(type_id) + dt.now().strftime('%Y-%m-%d_%H.%M.%S')
+            self.id = "{}-{}-".format(self.config.type, type_id) + dt.now().strftime('%Y-%m-%d_%H.%M.%S')
 
         helpers.make_dirs(self.id)
 

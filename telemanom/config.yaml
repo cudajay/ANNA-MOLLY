@@ -3,7 +3,7 @@
 train: True # train new or existing model for each channel
 predict: True # generate new predicts or, if False, use predictions stored locally
 type: "lstm"
-use_id: "lstm-gssss"
+use_id: "999"
 
 
 
