@@ -299,7 +299,7 @@ class Detector:
             channel.load_data()
 
             if self.config.predict:
-                model = Model(self.config, self.id, channel)
+                model = Model(pp.config, pp.id, channel, mf)
                 channel = model.batch_predict(channel)
             else:
                 channel.y_hat = np.load(os.path.join('data', self.id, 'y_hat',

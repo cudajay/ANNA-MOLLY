@@ -20,6 +20,8 @@ if os.path.exists(f_path):
 else:
     print("config not found!")
     
+    
+print(args)
 if args.base_type == "LSTM":
     os.popen("cp lstm_base_config.yaml telemanom/config.yaml")
     os.chdir('telemanom')
