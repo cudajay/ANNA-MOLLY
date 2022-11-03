@@ -16,14 +16,6 @@ import json
 
 mf = Model_Factory()
 logger = helpers.setup_logging()
-class Parallel_Params:
-    def __init__(self, config, i, chan_id, rid):
-        self.config = config
-        self.i = i
-        self.chan_id = chan_id
-        self.id =rid
-
-        
 
 class Detector:
     def __init__(self, labels_path=None, result_path='results/',
