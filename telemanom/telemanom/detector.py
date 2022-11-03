@@ -16,40 +16,6 @@ import json
 
 mf = Model_Factory()
 logger = helpers.setup_logging()
-class Parallel_Params:
-    def __init__(self, config, i, chan_id, rid):
-        self.config = config
-        self.i = i
-        self.chan_id = chan_id
-        self.id =rid
-
-        
-def run_job(cfg, i, cid, rid):
-    pp = Parallel_Params(cfg, i, cid, rid)
-    print('Staring parallel job for channel {}'.format(pp.chan_id))
-    logger.info('Stream # {}: {}'.format(pp.i, pp.chan_id))
-    channel = Channel(pp.config, pp.chan_id)
-    channel.load_data()
-    if pp.config.predict:
-        model = Model(pp.config, pp.id, channel, mf)
-        channel = model.batch_predict(channel)
-    else:
-        channel.y_hat = np.load(os.path.join('data', pp.id, 'y_hat',
-                                             '{}.npy'
-                                             .format(channel.id)))
-
-    errors = Errors(channel, pp.config, pp.id)
-    errors.process_batches(channel)
-    result_row = {
-            'run_id': pp.id,
-            'chan_id': pp.chan_id,
-            'num_train_values': len(channel.X_train),
-            'num_test_values': len(channel.X_test),
-            'n_predicted_anoms': len(errors.E_seq),
-            'normalized_pred_error': errors.normalized,
-            'anom_scores': errors.anom_scores
-        }
-    return {'i':i , 'rr':result_row, 'e':errors}
 
 class Detector:
     def __init__(self, labels_path=None, result_path='results/',
@@ -235,9 +201,33 @@ class Detector:
             logger.info('Total number of values evaluated: {}'
                         .format(self.result_df['num_test_values'].sum()))
 
+    def run_job(self, i, cid):
+        print('Staring parallel job for channel {}'.format(cid))
+        channel = Channel(self.config, cid)
+        channel.load_data()
+        if self.config.predict:
+            model = Model(self.config, self.id, channel, mf)
+            channel = model.batch_predict(channel)
+        else:
+            channel.y_hat = np.load(os.path.join('data', self.id, 'y_hat',
+                                                '{}.npy'
+                                                .format(channel.id)))
+
+        errors = Errors(channel, self.config, self.id)
+        errors.process_batches(channel)
+        result_row = {
+                'run_id': self.id,
+                'chan_id': cid,
+                'num_train_values': len(channel.X_train),
+                'num_test_values': len(channel.X_test),
+                'n_predicted_anoms': len(errors.E_seq),
+                'normalized_pred_error': errors.normalized,
+                'anom_scores': errors.anom_scores
+            }
+        return {'i':i , 'rr':result_row, 'e':errors}
     def run_parallel(self):
         cfg_list =\
-            [[self.config,i,row.chan_id,self.id]\
+            [[i,row.chan_id]\
              for i, row in self.chan_df.iterrows()]
         for cfg in cfg_list:
             print(cfg)
@@ -245,7 +235,7 @@ class Detector:
         print("*"*200)
         pool = mp.Pool(mp.cpu_count())
         # Map pool of workers to process
-        results_lst = pool.starmap(func=run_job, iterable=cfg_list)
+        results_lst = pool.starmap(func=self.run_job, iterable=cfg_list)
 
         # Wait until workers complete execution
         pool.close()
