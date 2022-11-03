@@ -6,11 +6,11 @@ import logging
 
 import multiprocessing as mp
 
-from helpers import Config
-from errors import Errors
-import helpers as helpers
-from channel import Channel
-from modeling import Model
+from telemanom.helpers import Config
+from telemanom.errors import Errors
+import telemanom.helpers as helpers
+from telemanom.channel import Channel
+from telemanom.modeling import Model
 from model_utils.Model_factory import Model_Factory
 import json
 
@@ -49,7 +49,7 @@ def run_job(cfg, i, cid, rid):
             'normalized_pred_error': errors.normalized,
             'anom_scores': errors.anom_scores
         }
-    return {'i':i , 'rr':results_row, 'e':errors}
+    return {'i':i , 'rr':result_row, 'e':errors}
 
 class Detector:
     def __init__(self, labels_path=None, result_path='results/',
@@ -299,7 +299,7 @@ class Detector:
             channel.load_data()
 
             if self.config.predict:
-                model = Model(pp.config, pp.id, channel, mf)
+                model = Model(self.config, self.id, channel, mf)
                 channel = model.batch_predict(channel)
             else:
                 channel.y_hat = np.load(os.path.join('data', self.id, 'y_hat',

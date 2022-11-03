@@ -1,4 +1,4 @@
-from keras.layers.recurrent import LSTM
+from keras.layers import LSTM
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.convolutional import Conv1D
 from keras.layers.convolutional import MaxPooling1D
