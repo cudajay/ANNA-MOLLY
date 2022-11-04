@@ -3,6 +3,7 @@ import pandas as pd
 import more_itertools as mit
 import os
 import logging
+import pdb
 
 logger = logging.getLogger('telemanom')
 
@@ -403,7 +404,7 @@ class ErrorWindow:
         E_seq_max = np.array([max(e_s[e[0]:e[1]+1]) for e in E_seq])
         E_seq_max_sorted = np.sort(E_seq_max)[::-1]
         E_seq_max_sorted = np.append(E_seq_max_sorted, [non_anom_max])
-
+    
         i_to_remove = np.array([])
         for i in range(0, len(E_seq_max_sorted)-1):
             if (E_seq_max_sorted[i] - E_seq_max_sorted[i+1]) \
@@ -413,9 +414,9 @@ class ErrorWindow:
             else:
                 i_to_remove = np.array([])
         i_to_remove[::-1].sort()
-
+        #pdb.set_trace()
         if len(i_to_remove) > 0:
-            E_seq = np.delete(E_seq, i_to_remove, axis=0)
+            E_seq = np.delete(E_seq, i_to_remove.astype(int), axis=0)
 
         if len(E_seq) == 0 and inverse:
             self.i_anom_inv = np.array([])
