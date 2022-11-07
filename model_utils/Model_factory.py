@@ -27,7 +27,7 @@ class Model_Factory():
                 config.n_predictions))
             model.add(Activation('linear'))
     
-        elif config.type  == 'cnn':
+        elif config.type  == 'cnn-1h':
             model = Sequential()
             model.add(Conv1D(filters=64,
                              kernel_size=3,
@@ -40,12 +40,12 @@ class Model_Factory():
             model.add(Dense(
                 25))
             model.add(LSTM(
-                cfg.layers[1],
+                config.layers[1],
                 return_sequences=False))
-            model.add(Dropout(cfg.dropout))
+            model.add(Dropout(config.dropout))
 
             model.add(Dense(
-                cfg.n_predictions))
+                config.n_predictions))
             model.add(Activation('linear'))
             model.add(Dense(
                 config.n_predictions))

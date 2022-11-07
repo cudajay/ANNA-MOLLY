@@ -1,1 +1,1 @@
-{"lstm": 10, "cnn": 0, "mcnn": 0, "transfomer": 0}
+{"lstm": 4, "cnn-1h": 3, "cnn-mh": 0, "trans": 0}

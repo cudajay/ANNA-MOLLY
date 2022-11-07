@@ -24,5 +24,10 @@ else:
 print(args)
 if args.base_type == "LSTM":
     os.popen("cp lstm_base_config.yaml telemanom/config.yaml")
-    os.chdir('telemanom')
-    exec(open("example.py").read())
+elif args.base_type == "CNN-1H":
+    os.popen("cp cnn-1h_base_config.yaml telemanom/config.yaml")
+else:
+    print("No proper config found")
+    assert(False)
+os.chdir('telemanom')
+exec(open("example.py").read())

@@ -241,7 +241,7 @@ class Detector:
         pool.close()
         
         for i, row in self.chan_df.iterrows():
-            res = list(filter(lambda results_lst: results_lst['i'] == i, results_lst))
+            res = list(filter(lambda results_lst: results_lst['i'] == i, results_lst))[0]
             result_row = res['rr']
             errors = res['e']
             
