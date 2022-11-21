@@ -11,6 +11,7 @@ sys.path.append("model_utils/")
 
 parser = argparse.ArgumentParser(description='Experimenting Interface')
 parser.add_argument('-b', '--base_type', default="LSTM", required=False)
+parser.add_argument('-p', '--parallel', default=False, required=False)
 args = parser.parse_args()
 f_path = os.path.join("telemanom", "config.yaml")
 
@@ -25,6 +26,8 @@ print(args)
 if args.base_type == "LSTM":
     os.popen("cp lstm_base_config.yaml telemanom/config.yaml")
 elif args.base_type == "CNN-1H":
+    os.popen("cp cnn-1h_base_config.yaml telemanom/config.yaml")
+elif args.base_type == "CNN-MH":
     os.popen("cp cnn-1h_base_config.yaml telemanom/config.yaml")
 else:
     print("No proper config found")
