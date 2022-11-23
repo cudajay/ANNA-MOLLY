@@ -12,6 +12,7 @@ sys.path.append("model_utils/")
 parser = argparse.ArgumentParser(description='Experimenting Interface')
 parser.add_argument('-b', '--base_type', default="LSTM", required=False)
 parser.add_argument('-p', '--parallel', default=False, required=False)
+parser.add_argument('-g', '--generate', default='', required=False)
 args = parser.parse_args()
 f_path = os.path.join("telemanom", "config.yaml")
 

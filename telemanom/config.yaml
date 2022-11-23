@@ -2,7 +2,7 @@
 #===================================
 train: True # train new or existing model for each channel
 predict: True # generate new predicts or, if False, use predictions stored locally
-type: "cnn-mh"
+type: "lstm"
 use_id: "999"
 
 

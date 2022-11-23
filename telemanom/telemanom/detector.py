@@ -13,6 +13,7 @@ from telemanom.channel import Channel
 from telemanom.modeling import Model
 from model_utils.Model_factory import Model_Factory
 import json
+import shutil
 
 mf = Model_Factory()
 logger = helpers.setup_logging()
@@ -279,6 +280,29 @@ class Detector:
                 index=False)
 
         self.log_final_stats()
+
+    def generate(self, pth:os.path):
+        base_pth = pth
+        os.mkdir(os.path.join(pth))
+        os.mkdir(os.path.join(pth, '55'))
+        os.mkdir(os.path.join(pth, '25'))
+        os.mkdir(os.path.join(pth, '55', 'train'))
+        os.mkdir(os.path.join(pth, '55', 'test'))
+        os.mkdir(os.path.join(pth, '25', 'train'))
+        os.mkdir(os.path.join(pth, '25', 'test'))
+        for i, row in self.chan_df.iterrows():
+            logger.info('Stream # {}: {}'.format(i+1, row.chan_id))
+            channel = Channel(self.config, row.chan_id)
+            channel.load_data()
+            if channel.X_train.shape[-1] == 25:
+                np.save(os.path.join(pth, '25', 'train', str(row.chan_id) + "_X.npy"), channel.X_train)
+                np.save(os.path.join(pth, '25', 'train', str(row.chan_id) + "_y.npy"), channel.y_train)
+                np.save(os.path.join(pth, '25', 'test', str(row.chan_id) + "_X.npy"), channel.X_test)
+                np.save(os.path.join(pth, '25', 'test', str(row.chan_id) + "_y.npy"), channel.y_test)
+            else:
+                np.save(os.path.join(pth, '55', 'test', str(row.chan_id) + "_X.npy"), channel.X_test)
+                np.save(os.path.join(pth, '55', 'test', str(row.chan_id) + "_y.npy"), channel.y_test)
+        logger.info('Data Job Completed without Issue')
     def run(self):
         """
         Initiate processing for all channels.
