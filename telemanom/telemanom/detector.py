@@ -300,6 +300,8 @@ class Detector:
                 np.save(os.path.join(pth, '25', 'test', str(row.chan_id) + "_X.npy"), channel.X_test)
                 np.save(os.path.join(pth, '25', 'test', str(row.chan_id) + "_y.npy"), channel.y_test)
             else:
+                np.save(os.path.join(pth, '55', 'train', str(row.chan_id) + "_X.npy"), channel.X_train)
+                np.save(os.path.join(pth, '55', 'train', str(row.chan_id) + "_y.npy"), channel.y_train)
                 np.save(os.path.join(pth, '55', 'test', str(row.chan_id) + "_X.npy"), channel.X_test)
                 np.save(os.path.join(pth, '55', 'test', str(row.chan_id) + "_y.npy"), channel.y_test)
         logger.info('Data Job Completed without Issue')
